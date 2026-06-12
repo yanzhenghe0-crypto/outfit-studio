@@ -219,9 +219,7 @@ function renderLook() {
     const image = document.createElement("img");
     element.className = "look-layer";
     element.dataset.layer = key;
-    element.style.left = `${50 + layer.x}%`;
-    element.style.top = `${50 + layer.y}%`;
-    element.style.transform = `translate(-50%, -50%) scale(${layer.scale / 100}) rotate(${layer.rotate}deg)`;
+    applyLayerStyle(element, layer);
     element.style.zIndex = layerZIndex(key);
     element.classList.toggle("active", key === state.activeLayer);
     image.src = item.src;
@@ -233,14 +231,14 @@ function renderLook() {
   });
 }
 
-function setActiveLayer(layer) {
+function setActiveLayer(layer, shouldRender = true) {
   state.activeLayer = layer;
   selectedLayerName.textContent = categories[layer].label;
   document.querySelectorAll(".tool-button").forEach((button) => {
     button.classList.toggle("active", button.dataset.layer === layer);
   });
   syncControls();
-  renderLook();
+  if (shouldRender) renderLook();
 }
 
 function syncControls() {
@@ -254,37 +252,103 @@ function syncControls() {
 
 function startDrag(event, key, element) {
   event.preventDefault();
-  setActiveLayer(key);
+  setActiveLayer(key, false);
+  lookCanvas.querySelectorAll(".look-layer").forEach((layer) => layer.classList.toggle("active", layer === element));
   element.classList.add("dragging");
   element.setPointerCapture(event.pointerId);
 
-  const start = {
-    pointerX: event.clientX,
-    pointerY: event.clientY,
-    x: state.look[key].x,
-    y: state.look[key].y,
-  };
+  const pointers = new Map([[event.pointerId, { x: event.clientX, y: event.clientY }]]);
+  let start = getGestureState(pointers, state.look[key]);
   const rect = lookCanvas.getBoundingClientRect();
 
   function move(moveEvent) {
-    const dx = ((moveEvent.clientX - start.pointerX) / rect.width) * 100;
-    const dy = ((moveEvent.clientY - start.pointerY) / rect.height) * 100;
-    state.look[key].x = clamp(start.x + dx, -40, 40);
-    state.look[key].y = clamp(start.y + dy, -40, 40);
-    syncControls();
-    renderLook();
+    if (!pointers.has(moveEvent.pointerId)) return;
+    pointers.set(moveEvent.pointerId, { x: moveEvent.clientX, y: moveEvent.clientY });
+    updateLayerFromGesture(key, element, pointers, start, rect);
   }
 
-  function stop() {
+  function addPointer(pointerEvent) {
+    pointers.set(pointerEvent.pointerId, { x: pointerEvent.clientX, y: pointerEvent.clientY });
+    element.setPointerCapture(pointerEvent.pointerId);
+    start = getGestureState(pointers, state.look[key]);
+  }
+
+  function removePointer(pointerEvent) {
+    pointers.delete(pointerEvent.pointerId);
+    if (pointers.size) {
+      start = getGestureState(pointers, state.look[key]);
+      return;
+    }
     element.classList.remove("dragging");
     element.removeEventListener("pointermove", move);
-    element.removeEventListener("pointerup", stop);
-    element.removeEventListener("pointercancel", stop);
+    element.removeEventListener("pointerdown", addPointer);
+    element.removeEventListener("pointerup", removePointer);
+    element.removeEventListener("pointercancel", removePointer);
+    element.removeEventListener("lostpointercapture", removePointer);
   }
 
   element.addEventListener("pointermove", move);
-  element.addEventListener("pointerup", stop);
-  element.addEventListener("pointercancel", stop);
+  element.addEventListener("pointerdown", addPointer);
+  element.addEventListener("pointerup", removePointer);
+  element.addEventListener("pointercancel", removePointer);
+  element.addEventListener("lostpointercapture", removePointer);
+}
+
+function applyLayerStyle(element, layer) {
+  element.style.left = `${50 + layer.x}%`;
+  element.style.top = `${50 + layer.y}%`;
+  element.style.transform = `translate(-50%, -50%) scale(${layer.scale / 100}) rotate(${layer.rotate}deg)`;
+}
+
+function getGestureState(pointers, layer) {
+  const points = [...pointers.values()];
+  const center = getCenter(points);
+  return {
+    center,
+    distance: points.length > 1 ? getDistance(points[0], points[1]) : 0,
+    angle: points.length > 1 ? getAngle(points[0], points[1]) : 0,
+    x: layer.x,
+    y: layer.y,
+    scale: layer.scale,
+    rotate: layer.rotate,
+  };
+}
+
+function updateLayerFromGesture(key, element, pointers, start, rect) {
+  const points = [...pointers.values()];
+  const center = getCenter(points);
+  const layer = state.look[key];
+  const dx = ((center.x - start.center.x) / rect.width) * 100;
+  const dy = ((center.y - start.center.y) / rect.height) * 100;
+
+  layer.x = clamp(start.x + dx, -48, 48);
+  layer.y = clamp(start.y + dy, -48, 48);
+
+  if (points.length > 1 && start.distance > 0) {
+    const distance = getDistance(points[0], points[1]);
+    const angle = getAngle(points[0], points[1]);
+    layer.scale = clamp(Math.round(start.scale * (distance / start.distance)), 35, 180);
+    layer.rotate = clamp(Math.round(start.rotate + angle - start.angle), -25, 25);
+  }
+
+  applyLayerStyle(element, layer);
+  syncControls();
+}
+
+function getCenter(points) {
+  const total = points.reduce(
+    (sum, point) => ({ x: sum.x + point.x, y: sum.y + point.y }),
+    { x: 0, y: 0 }
+  );
+  return { x: total.x / points.length, y: total.y / points.length };
+}
+
+function getDistance(first, second) {
+  return Math.hypot(second.x - first.x, second.y - first.y);
+}
+
+function getAngle(first, second) {
+  return (Math.atan2(second.y - first.y, second.x - first.x) * 180) / Math.PI;
 }
 
 async function downloadLook() {

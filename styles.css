@@ -566,3 +566,172 @@ input[type="range"] {
     width: 100%;
   }
 }
+
+@media (max-width: 720px) {
+  body {
+    background: #f7f8f7;
+  }
+
+  .app-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+  }
+
+  .studio-panel {
+    order: 1;
+    gap: 10px;
+    padding: max(10px, env(safe-area-inset-top)) 10px 10px;
+  }
+
+  .closet-panel {
+    order: 2;
+    gap: 10px;
+    padding: 12px 10px max(16px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line);
+    border-right: 0;
+    border-bottom: 0;
+  }
+
+  .closet-panel .panel-header {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .closet-panel h1 {
+    font-size: 21px;
+  }
+
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+    padding: 6px 0;
+    background: #f7f8f7;
+  }
+
+  .toolbar-group,
+  .category-tabs {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .toolbar-group::-webkit-scrollbar,
+  .category-tabs::-webkit-scrollbar,
+  .closet-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tool-button,
+  .tab-button,
+  .primary-button,
+  .upload-button {
+    min-height: 44px;
+    white-space: nowrap;
+  }
+
+  .icon-button {
+    flex: 0 0 44px;
+    min-height: 44px;
+  }
+
+  .workspace {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .canvas-wrap {
+    min-height: 0;
+    height: min(62svh, 560px);
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 10px 26px rgba(28, 37, 35, 0.1);
+  }
+
+  .look-canvas {
+    width: min(100%, calc((62svh - 16px) * 0.75));
+    max-width: 100%;
+    min-width: 0;
+    max-height: calc(62svh - 16px);
+  }
+
+  .control-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .control-panel > div:first-child,
+  .swatch-row {
+    grid-column: 1 / -1;
+  }
+
+  .control-panel h2 {
+    font-size: 19px;
+  }
+
+  .range-field {
+    gap: 6px;
+    font-size: 13px;
+  }
+
+  .range-field input {
+    min-height: 28px;
+  }
+
+  .upload-card {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .field-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .drop-zone {
+    min-height: 76px;
+    padding: 12px;
+  }
+
+  .closet-grid {
+    display: flex;
+    gap: 10px;
+    max-height: none;
+    overflow-x: auto;
+    padding: 3px 2px 6px;
+  }
+
+  .closet-item {
+    flex: 0 0 118px;
+  }
+
+  .item-image {
+    aspect-ratio: 1 / 1.05;
+  }
+
+  .empty-state {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .canvas-wrap {
+    height: min(58svh, 500px);
+  }
+
+  .look-canvas {
+    width: min(100%, calc((58svh - 16px) * 0.75));
+    max-height: calc(58svh - 16px);
+  }
+
+  .control-panel {
+    grid-template-columns: 1fr;
+  }
+}
