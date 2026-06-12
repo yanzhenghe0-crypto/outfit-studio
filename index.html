@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>衣橱搭配工作台</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="closet-panel" aria-label="衣橱">
+        <header class="panel-header">
+          <div>
+            <p class="eyebrow">Wardrobe</p>
+            <h1>衣橱搭配工作台</h1>
+          </div>
+          <label class="upload-button">
+            <input id="fileInput" type="file" accept="image/*" multiple />
+            <span>上传</span>
+          </label>
+        </header>
+
+        <div class="category-tabs" role="tablist" aria-label="衣物分类">
+          <button class="tab-button active" type="button" data-category="tops">上衣</button>
+          <button class="tab-button" type="button" data-category="bottoms">下装</button>
+          <button class="tab-button" type="button" data-category="shoes">鞋履</button>
+          <button class="tab-button" type="button" data-category="bags">包饰</button>
+        </div>
+
+        <section class="upload-card">
+          <div class="field-row">
+            <label for="categorySelect">存入分类</label>
+            <select id="categorySelect">
+              <option value="tops">上衣</option>
+              <option value="bottoms">下装</option>
+              <option value="shoes">鞋履</option>
+              <option value="bags">包饰</option>
+            </select>
+          </div>
+          <label class="toggle-row">
+            <input id="removeBgToggle" type="checkbox" checked />
+            <span>自动扣除背景</span>
+          </label>
+          <label class="range-field compact">
+            <span>扣背景强度</span>
+            <input id="bgToleranceRange" type="range" min="18" max="90" value="46" />
+          </label>
+          <div id="dropZone" class="drop-zone" tabindex="0">
+            <strong>拖入图片或点击上传</strong>
+            <span>支持多选，图片只保存在当前浏览器</span>
+          </div>
+          <p id="uploadStatus" class="upload-status" aria-live="polite"></p>
+        </section>
+
+        <section class="closet-grid" id="closetGrid" aria-live="polite"></section>
+      </aside>
+
+      <section class="studio-panel" aria-label="搭配预览">
+        <header class="toolbar">
+          <div class="toolbar-group">
+            <button class="tool-button active" type="button" data-layer="tops">上衣</button>
+            <button class="tool-button" type="button" data-layer="bottoms">下装</button>
+            <button class="tool-button" type="button" data-layer="shoes">鞋履</button>
+            <button class="tool-button" type="button" data-layer="bags">包饰</button>
+          </div>
+          <div class="toolbar-group">
+            <button id="resetLayer" class="icon-button" type="button" title="重置当前图层">↺</button>
+            <button id="clearCanvas" class="icon-button" type="button" title="清空预览">×</button>
+            <button id="downloadLook" class="primary-button" type="button">导出</button>
+          </div>
+        </header>
+
+        <div class="workspace">
+          <div class="canvas-wrap">
+            <div id="lookCanvas" class="look-canvas" aria-label="当前搭配画布">
+              <div class="body-guide">
+                <span class="guide-head"></span>
+                <span class="guide-shoulders"></span>
+                <span class="guide-torso"></span>
+                <span class="guide-legs"></span>
+                <span class="guide-feet"></span>
+              </div>
+            </div>
+          </div>
+
+          <aside class="control-panel" aria-label="图层控制">
+            <div>
+              <p class="eyebrow">Selected</p>
+              <h2 id="selectedLayerName">上衣</h2>
+            </div>
+            <label class="range-field">
+              <span>大小</span>
+              <input id="scaleRange" type="range" min="35" max="180" value="100" />
+            </label>
+            <label class="range-field">
+              <span>左右</span>
+              <input id="xRange" type="range" min="-40" max="40" value="0" />
+            </label>
+            <label class="range-field">
+              <span>上下</span>
+              <input id="yRange" type="range" min="-40" max="40" value="0" />
+            </label>
+            <label class="range-field">
+              <span>旋转</span>
+              <input id="rotateRange" type="range" min="-20" max="20" value="0" />
+            </label>
+            <div class="swatch-row" aria-label="背景色">
+              <button class="swatch active" type="button" data-bg="#f6f3ee" style="--swatch:#f6f3ee" title="暖白"></button>
+              <button class="swatch" type="button" data-bg="#edf4f2" style="--swatch:#edf4f2" title="薄荷灰"></button>
+              <button class="swatch" type="button" data-bg="#f2eef7" style="--swatch:#f2eef7" title="淡紫灰"></button>
+              <button class="swatch" type="button" data-bg="#f5f5f5" style="--swatch:#f5f5f5" title="浅灰"></button>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <template id="closetItemTemplate">
+      <article class="closet-item">
+        <button class="item-image" type="button"></button>
+        <footer>
+          <span class="item-name"></span>
+          <button class="remove-item" type="button" title="删除">×</button>
+        </footer>
+      </article>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
